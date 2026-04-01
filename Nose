@@ -1,15 +1,69 @@
+import os
+from random import choice
+import requests
 import discord
 from discord.ext import commands
 from bot_logic import gen_pass
+
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix='$', intents=intents)
+tips = [
+    "Usa botellas reutilizables",
+    "Apaga las luces que no uses",
+    "Recicla papel, plástico y vidrio",
+    "Evita usar bolsas plásticas",
+    "Usa transporte público o bicicleta"
+]
+
 
 @bot.event
 async def on_ready():
     print(f'Hemos iniciado sesión como {bot.user}')
+
+
+
+def get_duck_image_url():    
+    url = 'https://random-d.uk/api/random'
+    res = requests.get(url)
+    data = res.json()
+    return data['url']
+
+@bot.command('duck')
+async def duck(ctx):
+    '''Una vez que llamamos al comando duck, 
+    el programa llama a la función get_duck_image_url'''
+    image_url = get_duck_image_url()
+    await ctx.send(image_url)
+
+def get_dog_image_url():    
+    url = 'https://random.dog/woof.json'
+    res = requests.get(url)
+    data = res.json()
+    return data['url']
+
+
+@bot.command('dog')
+async def dog(ctx):
+    '''Una vez que llamamos al comando dog, 
+    el programa llama a la función get_dog_image_url'''
+    image_url = get_dog_image_url()
+    await ctx.send(image_url)
+
+
+@bot.command()
+async def tip(ctx):
+    tip_aleatorio = choice(tips)
+    await ctx.send(tip_aleatorio)
+
+@bot.command()
+async def mem(ctx):
+    img_name = choice(os.listdir('images'))
+    with open(f'images/{img_name}', 'rb') as f:
+        picture = discord.File(f)
+    await ctx.send(file=picture)
 
 @bot.command()
 async def hello(ctx):
@@ -27,5 +81,52 @@ async def joined(ctx, member: discord.Member):
         await ctx.send(f'{member} has no join date.')
     else:
         await ctx.send(f'{member} joined {discord.utils.format_dt(member.joined_at)}')
+
+@bot.group()
+async def cool(ctx):
+    """Says if a user is cool.
+
+    In reality this just checks if a subcommand is being invoked.
+    """
+    if ctx.invoked_subcommand is None:
+        await ctx.send(f'No, {ctx.subcommand_passed} is not cool')
+
+
+@cool.command(name='bot')
+async def _bot(ctx):
+    """Is the bot cool?"""
+    await ctx.send('Yes, the bot is cool.')
+
+@cool.command(name='Fernando')
+async def _fernando(ctx):
+    """Is Fernando cool?"""
+    await ctx.send('Yes, Fernando is cool.')
+
+@cool.command(name='Gabriel')
+async def _gabriel(ctx):
+    """Es Gabriel cool?"""
+    await ctx.send('Si, Gabriel es cool.')
+
+@cool.command(name='Dominick')
+async def _dominick(ctx):
+    """Es Dominick cool?"""
+    await ctx.send('Si, Dominick es cool.')
+
+@cool.command(name='Jose')
+async def _jose_matias(ctx):
+    """Es Jose Matias cool?"""
+    await ctx.send('Si, Jose Matias es cool.')
+
+@cool.command(name='Briana')
+async def _briana(ctx):
+    """Es Briana cool?"""
+    await ctx.send('Si, Briana es cool.')
+
+@cool.command(name='Miguel')
+async def _miguel(ctx):
+    """Es Miguel cool?"""
+    await ctx.send('Si, Miguel es cool.')
+
+
 
 bot.run("TOKEN")
